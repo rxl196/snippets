@@ -1,27 +1,24 @@
-import { redirect } from 'next/navigation';
-import { db } from '@/db';
+'use client';
+
+import type React from 'react';
+import { useActionState, startTransition } from 'react';
+import * as actions from '@/actions';
 
 export default function SnippetCreatePage() {
-  async function createSnippet(formData: FormData) {
-    // This needs to be a server action!
-    'use server';
-    // Check user's inputs and make sure they're valid
-    const title = formData.get('title') as string;
-    const code = formData.get('code') as string;
-    // Create a new record in the database
-    const snippet = await db.snippet.create({
-      data: {
-        title,
-        code,
-      },
+  const [actionState, action] = useActionState(actions.createSnippet, {
+    message: '',
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => {
+      action(formData);
     });
-    console.log(snippet);
-    // Redirect user back to the root route
-    redirect('/');
-  }
+  };
 
   return (
-    <form action={createSnippet}>
+    <form onSubmit={handleSubmit}>
       <h3 className="font-bold m-3">Create a snippet</h3>
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
@@ -45,7 +42,16 @@ export default function SnippetCreatePage() {
           />
         </div>
 
-        <button type="submit" className="rounded p-2 bg-blue-200">
+        {actionState.message ? (
+          <div className="my-2 p-2 bg-red-200 border rounded border-red-400">
+            {actionState.message}
+          </div>
+        ) : null}
+
+        <button
+          type="submit"
+          className="rounded p-2 bg-blue-200 hover:cursor-pointer"
+        >
           Create
         </button>
       </div>
