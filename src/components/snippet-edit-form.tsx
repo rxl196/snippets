@@ -4,8 +4,6 @@ import type { Snippet } from '@/generated/prisma/client';
 import { useState } from 'react';
 import { Editor } from '@monaco-editor/react';
 import * as actions from '@/actions';
-import { db } from '@/db';
-import { redirect } from 'next/navigation';
 
 interface SnippetEditFormProps {
   snippet: Snippet;
